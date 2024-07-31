@@ -40,13 +40,13 @@ class PomodoroTimer:
         while self.current_cycle < self.cycles and not self.stopped.is_set():
             print(f"Cycle {self.current_cycle + 1}")
             self.notify(f"Cycle {self.current_cycle + 1} - Work Time")
-            print("Work for 25 minutes")
+            print(f"Work for {self.work_time//60} minutes")
             self.countdown(self.work_time, "Break Time")
             
             if self.stopped.is_set():
                 break
             
-            print("Take a 5-minute break")
+            print(f"Take a {self.break_time//60}-minute break")
             self.notify("Break Time - Relax")
             self.countdown(self.break_time, "Work Time")
             
