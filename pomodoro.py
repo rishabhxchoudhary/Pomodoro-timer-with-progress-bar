@@ -3,6 +3,17 @@ import progressbar
 import os
 from threading import Thread, Event
 import simpleaudio as sa
+import sys
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    
+    return os.path.join(base_path, relative_path)
 
 class PomodoroTimer:
     def __init__(self, work_time, break_time, cycles):
@@ -27,10 +38,9 @@ class PomodoroTimer:
         self.sound_stopped.set()
 
     def play_sound(self):
-        wave_obj = sa.WaveObject.from_wave_file("alarm.wav")
+        wave_obj = sa.WaveObject.from_wave_file(resource_path("alarm.wav"))
         play_obj = wave_obj.play()
         play_obj.wait_done()
-
 
     def countdown(self, total_time, message):
         widgets = [
