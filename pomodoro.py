@@ -2,6 +2,7 @@ import time
 import progressbar
 import os
 from threading import Thread, Event
+import simpleaudio as sa
 
 class PomodoroTimer:
     def __init__(self, work_time, break_time, cycles):
@@ -11,21 +12,33 @@ class PomodoroTimer:
         self.current_cycle = 0
         self.paused = Event()
         self.stopped = Event()
+        self.sound_stopped = Event()
         self.paused.set()
+        self.sound_stopped.set()
         self.thread = Thread(target=self.run_timer)
         
     def notify(self, message):
         os.system(f"""
                   osascript -e 'display notification "{message}" with title "Pomodoro Timer"'
                   """)
-        
+    def stop_sound(self):
+        print("In stop_sound")
+        input("Press Enter to stop the alarm: ")
+        self.sound_stopped.set()
+
+    def play_sound(self):
+        wave_obj = sa.WaveObject.from_wave_file("alarm.wav")
+        play_obj = wave_obj.play()
+        play_obj.wait_done()
+
+
     def countdown(self, total_time, message):
         widgets = [
             ' [', progressbar.Percentage(), '] ',
             progressbar.Bar(), ' (', progressbar.ETA(), ') '
         ]
         bar = progressbar.ProgressBar(max_value=total_time, widgets=widgets).start()
-        
+        start = time.time()
         for t in range(total_time):
             if self.stopped.is_set():
                 bar.finish()
@@ -34,8 +47,10 @@ class PomodoroTimer:
             bar.update(t + 1)
             time.sleep(1)
         bar.finish()
+        print("Time Elapsed: ", time.time() - start)
         self.notify(message)
-    
+        self.play_sound()
+
     def run_timer(self):
         while self.current_cycle < self.cycles and not self.stopped.is_set():
             print(f"Cycle {self.current_cycle + 1}")

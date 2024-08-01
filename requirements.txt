@@ -1,1 +1,4 @@
 progressbar2
+PyObjC
+pydub 
+simpleaudio
